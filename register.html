@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>EcoWaste TN — Register</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+<div style="position:fixed;top:16px;right:16px;z-index:999">
+  <button class="lang-btn" id="lang-toggle-btn" onclick="toggleLanguage()">🌐 தமிழ்</button>
+</div>
+
+<div class="auth-page">
+  <div class="auth-card">
+    <div class="auth-logo">EcoWaste <span>TN</span></div>
+    <div class="auth-subtitle" data-lang="registerSub">Join Hosur's waste management platform</div>
+    <div class="auth-title" data-lang="createAccount">Create Account</div>
+
+    <div class="alert error" id="error-msg"></div>
+    <div class="alert success" id="success-msg"></div>
+
+    <div class="form-group">
+      <label data-lang="labelFullName">Full Name</label>
+      <input type="text" id="name" class="form-input"
+        data-lang="fullNamePlaceholder" data-lang-attr="placeholder"
+        placeholder="Enter your full name"/>
+    </div>
+    <div class="form-group">
+      <label data-lang="labelEmail">Email Address</label>
+      <input type="email" id="email" class="form-input"
+        data-lang="emailPlaceholder" data-lang-attr="placeholder"
+        placeholder="Enter your email"/>
+    </div>
+    <div class="form-group">
+      <label data-lang="labelPassword">Password</label>
+      <input type="password" id="password" class="form-input"
+        data-lang="createPasswordPlaceholder" data-lang-attr="placeholder"
+        placeholder="Create a password"/>
+    </div>
+    <div class="form-group">
+      <label data-lang="registerAs">Register As</label>
+      <div class="role-select">
+        <button class="role-btn active" id="role-citizen"
+          onclick="setRole('citizen')" data-lang="btnCitizen">Citizen</button>
+        <button class="role-btn" id="role-admin"
+          onclick="setRole('admin')" data-lang="btnMunicipalAdmin">Municipality Admin</button>
+      </div>
+    </div>
+
+    <button class="btn-primary full-width" onclick="register()"
+      data-lang="btnCreateAccount">Create Account</button>
+
+    <div class="auth-switch">
+      <span data-lang="alreadyAccount">Already have an account?</span>
+      <a href="/login.html" data-lang="loginHere">Login here</a>
+    </div>
+  </div>
+</div>
+
+<script src="/lang.js"></script>
+<script src="/chatbot.js"></script>
+<script>
+const API = 'http://localhost:8080/api/auth';
+let selectedRole = 'citizen';
+
+function setRole(role) {
+  selectedRole = role;
+  document.getElementById('role-citizen').classList.toggle('active', role==='citizen');
+  document.getElementById('role-admin').classList.toggle('active', role==='admin');
+}
+
+async function register() {
+  const name = document.getElementById('name').value.trim();
+  const email = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value.trim();
+  hideAlerts();
+  if (!name||!email||!password) { showError('Please fill in all fields.'); return; }
+  if (password.length < 6) { showError('Password must be at least 6 characters.'); return; }
+  try {
+    const res = await fetch(`${API}/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, password, role: selectedRole })
+    });
+    const data = await res.json();
+    if (data.status === 'success') {
+      showSuccess('Account created! Redirecting to login...');
+      setTimeout(() => window.location.href = '/login.html', 2000);
+    } else {
+      showError(data.message || 'Registration failed.');
+    }
+  } catch (e) {
+    showError('Cannot connect to server. Make sure backend is running.');
+  }
+}
+
+function showError(msg) { const el=document.getElementById('error-msg'); el.textContent=msg; el.style.display='block'; }
+function showSuccess(msg) { const el=document.getElementById('success-msg'); el.textContent=msg; el.style.display='block'; }
+function hideAlerts() { document.getElementById('error-msg').style.display='none'; document.getElementById('success-msg').style.display='none'; }
+</script>
+<script src="lang.js"></script>
+<script src="/chatbot.js"></script>
+</body>
+</html>

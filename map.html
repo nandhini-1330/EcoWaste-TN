@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>EcoWaste TN — Hosur Waste Map</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="style.css"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<style>
+#map { height: 480px; border-radius: 14px; border: 1px solid var(--border); }
+.map-stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px,1fr)); gap: 14px; margin-bottom: 24px; }
+.map-stat { background: var(--white); border: 1px solid var(--border); border-radius: 12px; padding: 16px; text-align: center; }
+.map-stat-num { font-family: 'Syne', sans-serif; font-size: 28px; font-weight: 800; color: var(--dark); }
+.map-stat-label { font-size: 12px; color: var(--text2); margin-top: 4px; }
+.legend { background: white; padding: 14px 16px; border-radius: 10px; border: 1px solid var(--border); line-height: 2; font-size: 13px; font-family: 'DM Sans', sans-serif; }
+.legend-dot { display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin-right: 6px; }
+.zone-table { width: 100%; border-collapse: collapse; font-size: 14px; margin-top: 24px; }
+.zone-table th { background: #f9fafb; padding: 12px 16px; text-align: left; font-size: 12px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; color: var(--text2); border-bottom: 1px solid var(--border); }
+.zone-table td { padding: 12px 16px; border-bottom: 1px solid #f3f4f6; }
+.zone-table tr:hover td { background: var(--green-bg); }
+.risk-high { background: #fee2e2; color: #991b1b; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 12px; }
+.risk-medium { background: #fef3c7; color: #92400e; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 12px; }
+.risk-low { background: #dcfce7; color: #15803d; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 12px; }
+.pulse { animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.6; } }
+</style>
+</head>
+<body>
+<nav class="navbar">
+  <a href="/index.html" class="logo">EcoWaste <span>TN</span></a>
+  <div class="nav-links">
+    <a href="/index.html" data-lang="home">Home</a>
+    <a href="/citizen.html" data-lang="checkWaste">Check Waste</a>
+    <a href="/map.html" class="active" style="color:var(--green)">Waste Map</a>
+    <a href="/admin.html" data-lang="admin">Admin</a>
+    <button class="lang-btn lang-toggle-btn" onclick="toggleLanguage()">🌐 தமிழ்</button>
+    <span class="nav-user" id="nav-user"></span>
+    <button class="btn-danger" onclick="logout()"
+      style="padding:6px 14px;font-size:13px;border-radius:6px">Logout</button>
+  </div>
+</nav>
+
+<div class="page-wrap" style="max-width:1000px">
+  <div class="page-header">
+    <h1>📍 Hosur Live Waste Map</h1>
+    <p>Real-time heatmap showing pending waste collection requests across Hosur zones.</p>
+  </div>
+
+  <!-- STATS -->
+  <div class="map-stat-grid">
+    <div class="map-stat">
+      <div class="map-stat-num" id="map-total">0</div>
+      <div class="map-stat-label">Total Requests</div>
+    </div>
+    <div class="map-stat" style="border-color:#fecaca;background:#fef2f2">
+      <div class="map-stat-num" style="color:#dc2626" id="map-pending">0</div>
+      <div class="map-stat-label">Pending Pickups</div>
+    </div>
+    <div class="map-stat" style="border-color:#bbf7d0;background:#f0fdf4">
+      <div class="map-stat-num" style="color:#16a34a" id="map-collected">0</div>
+      <div class="map-stat-label">Collected</div>
+    </div>
+    <div class="map-stat" style="border-color:#fde68a;background:#fffbeb">
+      <div class="map-stat-num" style="color:#d97706" id="map-high-zones">0</div>
+      <div class="map-stat-label">High Risk Zones</div>
+    </div>
+  </div>
+
+  <!-- MAP -->
+  <div style="position:relative;margin-bottom:24px">
+    <div id="map"></div>
+    <div style="position:absolute;bottom:16px;left:16px;z-index:999">
+      <div class="legend">
+        <div><span class="legend-dot" style="background:#ef4444"></span>High Risk (3+ pending)</div>
+        <div><span class="legend-dot" style="background:#f59e0b"></span>Medium Risk (1-2 pending)</div>
+        <div><span class="legend-dot" style="background:#22c55e"></span>Low Risk (0 pending)</div>
+      </div>
+    </div>
+    <div style="position:absolute;top:16px;right:16px;z-index:999">
+      <button class="btn-primary" onclick="loadMapData()"
+        style="padding:8px 16px;font-size:13px">🔄 Refresh</button>
+    </div>
+  </div>
+
+  <!-- ZONE TABLE -->
+  <div class="table-section">
+    <div class="table-header">
+      <h2>Zone Details</h2>
+      <span style="font-size:13px;color:var(--text2)" id="last-updated"></span>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="zone-table">
+        <thead>
+          <tr>
+            <th>Zone</th>
+            <th>Total Requests</th>
+            <th>Pending</th>
+            <th>Collected</th>
+            <th>Risk Level</th>
+          </tr>
+        </thead>
+        <tbody id="zone-table-body">
+          <tr><td colspan="5" style="text-align:center;padding:32px;color:#888">Loading map data...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<footer class="footer">
+  <p>EcoWaste TN · Live Waste Map · TNWISE 2026 · Hosur</p>
+</footer>
+
+<script src="/lang.js"></script>
+<script src="/chatbot.js"></script>
+<script>
+const API = 'http://localhost:8080/api';
+
+const user = JSON.parse(localStorage.getItem('user'));
+if (!user) window.location.href = '/login.html';
+document.getElementById('nav-user').textContent = 'Hi, ' + (user ? user.name : '');
+
+function logout() { localStorage.removeItem('user'); window.location.href = '/login.html'; }
+
+// Demo data for when backend has no requests yet
+const DEMO_DATA = [
+  { zone:'SIPCOT',           lat:12.7409, lng:77.8253, pending:4, total:6, collected:2, risk:'High' },
+  { zone:'Gandhi Nagar',     lat:12.7350, lng:77.8190, pending:2, total:3, collected:1, risk:'Medium' },
+  { zone:'Mathigiri',        lat:12.7480, lng:77.8310, pending:1, total:2, collected:1, risk:'Medium' },
+  { zone:'Hosur Bus Stand',  lat:12.7368, lng:77.8256, pending:0, total:1, collected:1, risk:'Low' },
+  { zone:'Industrial Area',  lat:12.7430, lng:77.8350, pending:3, total:4, collected:1, risk:'High' },
+  { zone:'Nehru Nagar',      lat:12.7320, lng:77.8220, pending:0, total:2, collected:2, risk:'Low' },
+  { zone:'Anna Nagar',       lat:12.7390, lng:77.8180, pending:1, total:1, collected:0, risk:'Medium' },
+  { zone:'Denkanikotta Road',lat:12.7290, lng:77.8290, pending:0, total:1, collected:1, risk:'Low' },
+];
+
+// Init Leaflet map centered on Hosur
+const map = L.map('map').setView([12.7370, 77.8256], 14);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '© OpenStreetMap contributors'
+}).addTo(map);
+
+let markers = [];
+
+function getColor(risk) {
+  if (risk === 'High')   return '#ef4444';
+  if (risk === 'Medium') return '#f59e0b';
+  return '#22c55e';
+}
+
+function getRadius(pending) {
+  if (pending >= 3) return 40;
+  if (pending >= 1) return 28;
+  return 18;
+}
+
+function drawMarkers(data) {
+  // Clear old markers
+  markers.forEach(m => map.removeLayer(m));
+  markers = [];
+
+  data.forEach(zone => {
+    const color  = getColor(zone.risk);
+    const radius = getRadius(zone.pending);
+
+    // Pulsing circle
+    const circle = L.circleMarker([zone.lat, zone.lng], {
+      radius: radius,
+      fillColor: color,
+      color: color,
+      weight: 2,
+      opacity: 0.8,
+      fillOpacity: 0.35
+    }).addTo(map);
+
+    // Inner solid dot
+    const dot = L.circleMarker([zone.lat, zone.lng], {
+      radius: 8,
+      fillColor: color,
+      color: '#fff',
+      weight: 2,
+      opacity: 1,
+      fillOpacity: 1
+    }).addTo(map);
+
+    // Popup
+    const popupContent = `
+      <div style="font-family:'DM Sans',sans-serif;min-width:180px">
+        <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:15px;
+          color:#0f1a12;margin-bottom:8px">📍 ${zone.zone}</div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+          <span style="font-size:13px;color:#4a6b50">Total Requests</span>
+          <strong>${zone.total}</strong>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+          <span style="font-size:13px;color:#4a6b50">Pending</span>
+          <strong style="color:#dc2626">${zone.pending}</strong>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+          <span style="font-size:13px;color:#4a6b50">Collected</span>
+          <strong style="color:#16a34a">${zone.collected}</strong>
+        </div>
+        <div style="text-align:center">
+          <span style="background:${color};color:#fff;font-size:11px;
+            font-weight:700;padding:3px 12px;border-radius:12px">
+            ${zone.risk} Risk
+          </span>
+        </div>
+      </div>`;
+
+    circle.bindPopup(popupContent);
+    dot.bindPopup(popupContent);
+
+    markers.push(circle);
+    markers.push(dot);
+  });
+}
+
+function updateStats(data) {
+  const total     = data.reduce((s, z) => s + z.total, 0);
+  const pending   = data.reduce((s, z) => s + z.pending, 0);
+  const collected = data.reduce((s, z) => s + z.collected, 0);
+  const highZones = data.filter(z => z.risk === 'High').length;
+
+  document.getElementById('map-total').textContent     = total;
+  document.getElementById('map-pending').textContent   = pending;
+  document.getElementById('map-collected').textContent = collected;
+  document.getElementById('map-high-zones').textContent = highZones;
+}
+
+function updateTable(data) {
+  const sorted = [...data].sort((a, b) => b.pending - a.pending);
+  document.getElementById('zone-table-body').innerHTML = sorted.map(z => `
+    <tr>
+      <td><strong>${z.zone}</strong></td>
+      <td>${z.total}</td>
+      <td><strong style="color:#dc2626">${z.pending}</strong></td>
+      <td><strong style="color:#16a34a">${z.collected}</strong></td>
+      <td><span class="risk-${z.risk.toLowerCase()}">${z.risk}</span></td>
+    </tr>
+  `).join('');
+
+  const now = new Date();
+  document.getElementById('last-updated').textContent =
+    'Last updated: ' + now.toLocaleTimeString();
+}
+
+async function loadMapData() {
+  try {
+    const res  = await fetch(`${API}/admin/map-data`);
+    const data = await res.json();
+    const finalData = data.length > 0 ? data : DEMO_DATA;
+    drawMarkers(finalData);
+    updateStats(finalData);
+    updateTable(finalData);
+  } catch (e) {
+    // Use demo data if backend unreachable
+    drawMarkers(DEMO_DATA);
+    updateStats(DEMO_DATA);
+    updateTable(DEMO_DATA);
+  }
+}
+
+// Load on start
+loadMapData();
+
+// Auto refresh every 30 seconds
+setInterval(loadMapData, 30000);
+</script>
+</body>
+</html>

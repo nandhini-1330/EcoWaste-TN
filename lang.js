@@ -1,0 +1,222 @@
+const translations = {
+  en: {
+    heroBadge: "Smart & Sustainable Tamil Nadu · TNWISE 2026",
+    heroTitle1: "Segregate Smart.",
+    heroTitle2: "Dispose Right.",
+    heroSub: "Tamil Nadu's first AI-powered waste classification platform. Know exactly where to dispose your waste in Hosur — instantly.",
+    btnCheckWaste: "Check Your Waste",
+    btnCreateAccount: "Create Account",
+    stat1Label: "Waste mishandled in TN cities",
+    stat2Label: "Waste categories classified by AI",
+    stat3Label: "Time to get disposal answer",
+    stat4Label: "Specific disposal locations",
+    howItWorks: "How it works",
+    step1Title: "Describe your waste",
+    step1Desc: "Type any waste item in plain English. Example: dead battery, vegetable peels, broken laptop.",
+    step2Title: "AI classifies instantly",
+    step2Desc: "Our AI engine classifies it as Wet, Dry, E-Waste, or Hazardous in seconds.",
+    step3Title: "Get Hosur location",
+    step3Desc: "See the exact disposal centre near you in Hosur with address, timings, and contact.",
+    step4Title: "Request collection",
+    step4Desc: "Submit a home collection request. Municipality admin tracks and confirms pickup.",
+    categoriesTitle: "Waste categories we handle",
+    wetWaste: "Wet Waste",
+    wetDesc: "Food scraps, vegetable peels, garden waste",
+    dryWaste: "Dry Waste",
+    dryDesc: "Paper, plastic, cardboard, glass, metal",
+    eWaste: "E-Waste",
+    eWasteDesc: "Old phones, laptops, batteries, chargers",
+    hazardousWaste: "Hazardous",
+    hazardousDesc: "Paints, chemicals, medicines, motor oil",
+    home: "Home",
+    checkWaste: "Check Waste",
+    admin: "Admin",
+    logout: "Logout",
+    welcomeBack: "Welcome Back",
+    loginSub: "Login to your account",
+    labelEmail: "Email Address",
+    labelPassword: "Password",
+    emailPlaceholder: "Enter your email",
+    passwordPlaceholder: "Enter your password",
+    btnLogin: "Login",
+    noAccount: "No account?",
+    registerHere: "Register here",
+    createAccount: "Create Account",
+    registerSub: "Join Hosur's waste management platform",
+    labelFullName: "Full Name",
+    fullNamePlaceholder: "Enter your full name",
+    createPasswordPlaceholder: "Create a password",
+    registerAs: "Register As",
+    btnCitizen: "Citizen",
+    btnMunicipalAdmin: "Municipality Admin",
+    alreadyAccount: "Already have an account?",
+    loginHere: "Login here",
+    citizenTitle: "What waste do you have?",
+    citizenSub: "Type any item or scan a photo — AI will instantly tell you how and where to dispose it in Hosur.",
+    tabType: "Type Waste Item",
+    tabScan: "Scan Photo",
+    inputPlaceholder: "e.g. old mobile phone, vegetable peels...",
+    btnClassify: "Classify",
+    scanTitle: "Take a photo or upload an image of your waste",
+    scanSub: "AI will automatically identify and classify it",
+    btnOpenCamera: "Open Camera",
+    btnUpload: "Upload Image",
+    btnScan: "Scan This Image",
+    btnChooseDiff: "Choose Different",
+    aiClassifying: "AI is classifying your waste...",
+    disposalTip: "Disposal tip",
+    nearestCentre: "Nearest disposal centre in Hosur",
+    btnRequestCollection: "Request Home Collection",
+    requestTitle: "Request Home Collection",
+    requestSub: "Municipality staff will collect your waste from your address.",
+    labelName: "Your Name",
+    labelAddress: "Your Address in Hosur",
+    labelWasteDesc: "Waste Description",
+    namePlaceholder: "Enter your full name",
+    addressPlaceholder: "House no, street, area, Hosur",
+    btnSubmitRequest: "Submit Collection Request",
+    successTitle: "Request Submitted!",
+    successMsg: "Municipality staff will contact you within 24 hours.",
+    btnClassifyAnother: "Classify Another Waste",
+    adminTitle: "Admin Dashboard",
+    adminSub: "Hosur Municipality — Waste Collection Management",
+    totalRequests: "Total Requests",
+    pending: "Pending",
+    collected: "Collected",
+    eWasteRequests: "E-Waste Requests",
+    collectionRequests: "Collection Requests",
+    btnRefresh: "Refresh",
+    colID: "ID", colName: "Name", colAddress: "Address",
+    colWaste: "Waste", colCategory: "Category",
+    colDate: "Date", colStatus: "Status", colAction: "Action",
+  },
+
+  ta: {
+    heroBadge: "புத்திசாலி மற்றும் நிலையான தமிழ்நாடு · TNWISE 2026",
+    heroTitle1: "சரியாக பிரி.",
+    heroTitle2: "சரியாக அகற்று.",
+    heroSub: "தமிழ்நாட்டின் முதல் AI கழிவு வகைப்பாடு தளம். ஹோசூரில் உங்கள் கழிவை எங்கே அகற்றுவது என்று உடனே தெரிந்துகொள்ளுங்கள்.",
+    btnCheckWaste: "உங்கள் கழிவை சரிபார்க்கவும்",
+    btnCreateAccount: "கணக்கு உருவாக்கவும்",
+    stat1Label: "தவறாக கையாளப்படும் கழிவு",
+    stat2Label: "AI வகைப்படுத்தும் கழிவு வகைகள்",
+    stat3Label: "பதில் பெறும் நேரம்",
+    stat4Label: "குறிப்பிட்ட அகற்றும் இடங்கள்",
+    howItWorks: "எப்படி செயல்படுகிறது",
+    step1Title: "உங்கள் கழிவை விவரிக்கவும்",
+    step1Desc: "எந்த கழிவு பொருளையும் தட்டச்சு செய்யுங்கள். எ.கா: பேட்டரி, காய்கறி தோல்.",
+    step2Title: "AI உடனே வகைப்படுத்துகிறது",
+    step2Desc: "நமது AI சில நொடிகளில் ஈரம், உலர், மின்-கழிவு அல்லது ஆபத்தான என வகைப்படுத்துகிறது.",
+    step3Title: "ஹோசூர் இடத்தை பெறுங்கள்",
+    step3Desc: "உங்களுக்கு அருகில் உள்ள அகற்றும் மையத்தை முகவரியுடன் காணுங்கள்.",
+    step4Title: "சேகரிப்பை கோரவும்",
+    step4Desc: "வீட்டு சேகரிப்பு கோரிக்கையை சமர்ப்பிக்கவும். நிர்வாகி கண்காணிக்கிறார்.",
+    categoriesTitle: "நாங்கள் கையாளும் கழிவு வகைகள்",
+    wetWaste: "ஈர கழிவு",
+    wetDesc: "உணவு, காய்கறி தோல், தோட்ட கழிவு",
+    dryWaste: "உலர் கழிவு",
+    dryDesc: "காகிதம், பிளாஸ்டிக், அட்டை, கண்ணாடி",
+    eWaste: "மின்-கழிவு",
+    eWasteDesc: "பழைய தொலைபேசி, மடிக்கணினி, பேட்டரி",
+    hazardousWaste: "ஆபத்தான கழிவு",
+    hazardousDesc: "வண்ணம், வேதிப்பொருட்கள், மருந்துகள்",
+    home: "முகப்பு",
+    checkWaste: "கழிவு சரிபார்க்கவும்",
+    admin: "நிர்வாகி",
+    logout: "வெளியேறு",
+    welcomeBack: "மீண்டும் வருக",
+    loginSub: "உங்கள் கணக்கில் உள்நுழையவும்",
+    labelEmail: "மின்னஞ்சல் முகவரி",
+    labelPassword: "கடவுச்சொல்",
+    emailPlaceholder: "உங்கள் மின்னஞ்சலை உள்ளிடவும்",
+    passwordPlaceholder: "உங்கள் கடவுச்சொல்லை உள்ளிடவும்",
+    btnLogin: "உள்நுழைக",
+    noAccount: "கணக்கு இல்லையா?",
+    registerHere: "இங்கே பதிவு செய்யவும்",
+    createAccount: "கணக்கு உருவாக்கவும்",
+    registerSub: "ஹோசூரின் கழிவு மேலாண்மை தளத்தில் சேரவும்",
+    labelFullName: "முழு பெயர்",
+    fullNamePlaceholder: "உங்கள் முழு பெயரை உள்ளிடவும்",
+    createPasswordPlaceholder: "கடவுச்சொல் உருவாக்கவும்",
+    registerAs: "இவராக பதிவு செய்யவும்",
+    btnCitizen: "குடிமகன்",
+    btnMunicipalAdmin: "நகராட்சி நிர்வாகி",
+    alreadyAccount: "ஏற்கெனவே கணக்கு உள்ளதா?",
+    loginHere: "இங்கே உள்நுழையவும்",
+    citizenTitle: "உங்களிடம் என்ன கழிவு உள்ளது?",
+    citizenSub: "எந்த பொருளையும் தட்டச்சு செய்யுங்கள் அல்லது புகைப்படம் எடுங்கள் — AI உடனே சொல்லும்.",
+    tabType: "கழிவை தட்டச்சு செய்யுங்கள்",
+    tabScan: "புகைப்படம் எடுக்கவும்",
+    inputPlaceholder: "எ.கா. பழைய மொபைல் போன், காய்கறி தோல்...",
+    btnClassify: "வகைப்படுத்து",
+    scanTitle: "உங்கள் கழிவின் புகைப்படம் எடுக்கவும் அல்லது பதிவேற்றவும்",
+    scanSub: "AI தானாகவே அடையாளம் கண்டு வகைப்படுத்தும்",
+    btnOpenCamera: "கேமரா திறக்கவும்",
+    btnUpload: "படம் பதிவேற்றவும்",
+    btnScan: "இந்த படத்தை ஸ்கேன் செய்யவும்",
+    btnChooseDiff: "வேறு படம் தேர்ந்தெடுக்கவும்",
+    aiClassifying: "AI உங்கள் கழிவை வகைப்படுத்துகிறது...",
+    disposalTip: "அகற்றும் குறிப்பு",
+    nearestCentre: "ஹோசூரில் அருகிலுள்ள அகற்றும் மையம்",
+    btnRequestCollection: "வீட்டு சேகரிப்பை கோரவும்",
+    requestTitle: "வீட்டு சேகரிப்பை கோரவும்",
+    requestSub: "நகராட்சி ஊழியர்கள் உங்கள் முகவரியில் கழிவை சேகரிப்பார்கள்.",
+    labelName: "உங்கள் பெயர்",
+    labelAddress: "ஹோசூரில் உங்கள் முகவரி",
+    labelWasteDesc: "கழிவு விவரம்",
+    namePlaceholder: "உங்கள் முழு பெயரை உள்ளிடவும்",
+    addressPlaceholder: "வீட்டு எண், தெரு, பகுதி, ஹோசூர்",
+    btnSubmitRequest: "சேகரிப்பு கோரிக்கையை சமர்ப்பிக்கவும்",
+    successTitle: "கோரிக்கை சமர்ப்பிக்கப்பட்டது!",
+    successMsg: "நகராட்சி ஊழியர்கள் 24 மணி நேரத்தில் தொடர்பு கொள்வார்கள்.",
+    btnClassifyAnother: "மற்றொரு கழிவை வகைப்படுத்தவும்",
+    adminTitle: "நிர்வாக டாஷ்போர்டு",
+    adminSub: "ஹோசூர் நகராட்சி — கழிவு சேகரிப்பு மேலாண்மை",
+    totalRequests: "மொத்த கோரிக்கைகள்",
+    pending: "நிலுவையில்",
+    collected: "சேகரிக்கப்பட்டது",
+    eWasteRequests: "மின்-கழிவு கோரிக்கைகள்",
+    collectionRequests: "சேகரிப்பு கோரிக்கைகள்",
+    btnRefresh: "புதுப்பிக்கவும்",
+    colID: "ID", colName: "பெயர்", colAddress: "முகவரி",
+    colWaste: "கழிவு", colCategory: "வகை",
+    colDate: "தேதி", colStatus: "நிலை", colAction: "செயல்",
+  }
+};
+
+let currentLang = localStorage.getItem('ecowaste_lang') || 'en';
+
+function t(key) {
+  return translations[currentLang][key] || translations['en'][key] || key;
+}
+
+function toggleLanguage() {
+  currentLang = currentLang === 'en' ? 'ta' : 'en';
+  localStorage.setItem('ecowaste_lang', currentLang);
+  applyTranslations();
+  updateLangBtn();
+}
+
+function updateLangBtn() {
+  document.querySelectorAll('.lang-toggle-btn').forEach(btn => {
+    btn.textContent = currentLang === 'en' ? '🌐 தமிழ்' : '🌐 English';
+  });
+}
+
+function applyTranslations() {
+  document.querySelectorAll('[data-lang]').forEach(el => {
+    const key = el.getAttribute('data-lang');
+    const attr = el.getAttribute('data-lang-attr');
+    if (attr) {
+      el.setAttribute(attr, t(key));
+    } else {
+      el.textContent = t(key);
+    }
+  });
+  updateLangBtn();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  applyTranslations();
+  updateLangBtn();
+});

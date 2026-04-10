@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>EcoWaste TN — Check Your Waste</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="style.css"/>
+<style>
+.scan-tab { flex:1; padding:10px; border:1.5px solid var(--border); border-radius:8px; background:none; cursor:pointer; font-family:'DM Sans',sans-serif; font-size:14px; color:var(--text2); transition:all .2s; }
+.scan-tab.active { border-color:var(--green); background:var(--green-bg); color:var(--green); font-weight:600; }
+.scan-area { border:2px dashed var(--border); border-radius:14px; padding:40px 24px; text-align:center; background:var(--green-bg); }
+.scan-icon { font-size:48px; margin-bottom:12px; }
+.scan-text { font-family:'Syne',sans-serif; font-size:16px; font-weight:700; color:var(--dark); margin-bottom:6px; }
+.scan-sub { font-size:13px; color:var(--text2); margin-bottom:4px; }
+</style>
+</head>
+<body>
+<nav class="navbar">
+  <a href="/index.html" class="logo">EcoWaste <span>TN</span></a>
+  <div class="nav-links">
+    <a href="/index.html" data-lang="home">Home</a>
+    <a href="/citizen.html" class="active" data-lang="checkWaste">Check Waste</a>
+    <a href="/map.html" style="color:var(--green)">Waste Map</a>
+    <button class="lang-btn lang-toggle-btn" onclick="toggleLanguage()">🌐 தமிழ்</button>
+    <span class="nav-user" id="nav-user"></span>
+    <button class="btn-danger" onclick="logout()"
+      style="padding:6px 14px;font-size:13px;border-radius:6px"
+      data-lang="logout">Logout</button>
+  </div>
+</nav>
+
+<div class="page-wrap">
+  <div class="page-header">
+    <h1 data-lang="citizenTitle">What waste do you have?</h1>
+    <p data-lang="citizenSub">Type any item or scan a photo — our AI will instantly tell you how and where to dispose it in Hosur.</p>
+  </div>
+
+  <div class="classifier-box">
+    <div style="display:flex;gap:8px;margin-bottom:20px">
+      <button class="scan-tab active" id="tab-text"
+        onclick="switchTab('text')" data-lang="tabType">Type Waste Item</button>
+      <button class="scan-tab" id="tab-photo"
+        onclick="switchTab('photo')" data-lang="tabScan">Scan Photo</button>
+    </div>
+
+    <div id="text-section">
+      <div class="input-group">
+        <input type="text" id="waste-input" class="waste-input"
+          data-lang="inputPlaceholder" data-lang-attr="placeholder"
+          placeholder="e.g. old mobile phone, vegetable peels..."/>
+        <button class="btn-primary" onclick="classifyWaste()"
+          data-lang="btnClassify">Classify</button>
+      </div>
+      <div class="quick-tags">
+        <span class="tag" onclick="quickFill('old smartphone')">old smartphone</span>
+        <span class="tag" onclick="quickFill('vegetable peels')">vegetable peels</span>
+        <span class="tag" onclick="quickFill('cardboard box')">cardboard box</span>
+        <span class="tag" onclick="quickFill('expired medicine')">expired medicine</span>
+        <span class="tag" onclick="quickFill('broken laptop')">broken laptop</span>
+        <span class="tag" onclick="quickFill('plastic bottle')">plastic bottle</span>
+      </div>
+    </div>
+
+    <div id="photo-section" style="display:none">
+      <div class="scan-area" id="scan-area">
+        <div class="scan-icon">📷</div>
+        <div class="scan-text" data-lang="scanTitle">Take a photo or upload an image of your waste</div>
+        <div class="scan-sub" data-lang="scanSub">AI will automatically identify and classify it</div>
+        <div style="display:flex;gap:10px;justify-content:center;margin-top:16px;flex-wrap:wrap">
+          <button class="btn-primary" onclick="openCamera()"
+            data-lang="btnOpenCamera">Open Camera</button>
+          <button class="btn-outline"
+            onclick="document.getElementById('file-input').click()"
+            data-lang="btnUpload">Upload Image</button>
+        </div>
+        <input type="file" id="file-input" accept="image/*"
+          style="display:none" onchange="handleFileUpload(event)"/>
+        <input type="file" id="camera-input" accept="image/*"
+          capture="environment" style="display:none"
+          onchange="handleFileUpload(event)"/>
+      </div>
+      <div id="preview-area" style="display:none;text-align:center">
+        <img id="preview-img" style="max-width:100%;max-height:280px;
+          border-radius:12px;border:2px solid var(--border);margin-bottom:16px"/>
+        <div style="display:flex;gap:10px;justify-content:center">
+          <button class="btn-primary" onclick="scanImage()"
+            data-lang="btnScan">Scan This Image</button>
+          <button class="btn-outline" onclick="resetPhoto()"
+            data-lang="btnChooseDiff">Choose Different</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="loading" class="loading hidden">
+    <div class="spinner"></div>
+    <p data-lang="aiClassifying">AI is classifying your waste...</p>
+  </div>
+
+  <div id="result-card" class="result-card hidden">
+    <div class="result-header">
+      <div class="result-badge" id="result-badge"></div>
+      <div class="result-item-name" id="result-item"></div>
+    </div>
+    <div class="result-body">
+      <div class="result-section">
+        <div class="result-label" data-lang="disposalTip">Disposal tip</div>
+        <div class="result-value" id="result-tip"></div>
+      </div>
+      <div class="result-divider"></div>
+      <div class="result-section">
+        <div class="result-label" data-lang="nearestCentre">Nearest disposal centre in Hosur</div>
+        <div class="result-value bold" id="result-location"></div>
+        <div class="result-meta" id="result-address"></div>
+        <div class="result-meta" id="result-timings"></div>
+        <div class="result-meta" id="result-contact"></div>
+      </div>
+    </div>
+    <div class="co2-box" id="co2-box" style="display:none">
+  <div class="co2-header">
+    <div class="co2-title">Your CO2 Savings</div>
+    <div class="co2-sub">By correctly segregating this waste</div>
+  </div>
+  <div class="co2-body">
+    <div class="co2-qty-row">
+      <label class="co2-label">Estimated weight (kg)</label>
+      <div class="co2-qty-ctrl">
+        <button onclick="changeQty(-1)">−</button>
+        <span id="co2-qty">1</span>
+        <button onclick="changeQty(1)">+</button>
+      </div>
+    </div>
+    <div class="co2-result-row">
+      <div class="co2-metric">
+        <div class="co2-big" id="co2-amount">0</div>
+        <div class="co2-unit">kg CO2 saved</div>
+      </div>
+      <div class="co2-bar-wrap">
+        <div class="co2-bar" id="co2-bar"></div>
+      </div>
+    </div>
+    <div class="co2-equiv" id="co2-equiv"></div>
+    <div class="co2-impact" id="co2-impact"></div>
+    <div class="co2-tip" id="co2-tip"></div>
+  </div>
+</div>
+<button class="btn-outline full-width" onclick="showRequestForm()"
+  data-lang="btnRequestCollection"
+  style="margin-top:12px">Request Home Collection</button>
+  </div>
+
+  <div id="request-form" class="request-form hidden">
+    <h2 data-lang="requestTitle">Request Home Collection</h2>
+    <p class="form-sub" data-lang="requestSub">Municipality staff will collect your waste from your address.</p>
+    <div class="form-group">
+      <label data-lang="labelName">Your Name</label>
+      <input type="text" id="req-name" class="form-input"
+        data-lang="namePlaceholder" data-lang-attr="placeholder"
+        placeholder="Enter your full name"/>
+    </div>
+    <div class="form-group">
+      <label data-lang="labelAddress">Your Address in Hosur</label>
+      <input type="text" id="req-address" class="form-input"
+        data-lang="addressPlaceholder" data-lang-attr="placeholder"
+        placeholder="House no, street, area, Hosur"/>
+    </div>
+    <div class="form-group">
+      <label data-lang="labelWasteDesc">Waste Description</label>
+      <input type="text" id="req-waste" class="form-input" readonly/>
+    </div>
+    <button class="btn-primary full-width" onclick="submitRequest()"
+      data-lang="btnSubmitRequest">Submit Collection Request</button>
+  </div>
+
+  <div id="success-msg" class="success-msg hidden">
+    <div class="success-icon">✓</div>
+    <h3 data-lang="successTitle">Request Submitted!</h3>
+    <p data-lang="successMsg">Municipality staff will contact you within 24 hours.</p>
+    <button class="btn-outline" onclick="resetAll()"
+      data-lang="btnClassifyAnother">Classify Another Waste</button>
+  </div>
+</div>
+
+<footer class="footer">
+  <p>EcoWaste TN · TNWISE 2026 · Hosur</p>
+</footer>
+
+<script src="/lang.js"></script>
+<script src="/chatbot.js"></script>
+<script>
+
+const API = 'http://localhost:8080/api';
+let currentCategory = '', currentItem = '';
+let scannedImageBase64 = '', scannedMediaType = '';
+
+const user = JSON.parse(localStorage.getItem('user'));
+if (!user) window.location.href = '/login.html';
+document.getElementById('nav-user').textContent = 'Hi, ' + (user ? user.name : '');
+
+function logout() { localStorage.removeItem('user'); window.location.href = '/login.html'; }
+function quickFill(text) { document.getElementById('waste-input').value = text; }
+
+function switchTab(tab) {
+  document.getElementById('tab-text').classList.toggle('active', tab==='text');
+  document.getElementById('tab-photo').classList.toggle('active', tab==='photo');
+  document.getElementById('text-section').style.display = tab==='text'?'block':'none';
+  document.getElementById('photo-section').style.display = tab==='photo'?'block':'none';
+}
+
+function openCamera() { document.getElementById('camera-input').click(); }
+
+function handleFileUpload(event) {
+  const file = event.target.files[0]; if (!file) return;
+  scannedMediaType = file.type || 'image/jpeg';
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const result = e.target.result;
+    scannedImageBase64 = result.split(',')[1];
+    document.getElementById('preview-img').src = result;
+    document.getElementById('scan-area').style.display = 'none';
+    document.getElementById('preview-area').style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+}
+
+function resetPhoto() {
+  scannedImageBase64 = '';
+  document.getElementById('scan-area').style.display = 'block';
+  document.getElementById('preview-area').style.display = 'none';
+  document.getElementById('file-input').value = '';
+  document.getElementById('camera-input').value = '';
+}
+
+async function scanImage() {
+  if (!scannedImageBase64) { alert('Please select an image first.'); return; }
+  show('loading'); hide('result-card'); hide('request-form'); hide('success-msg');
+  try {
+    const res = await fetch(`${API}/classify-image`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ image: scannedImageBase64, mediaType: scannedMediaType })
+    });
+    const data = await res.json();
+    currentItem = data.item || 'Scanned waste item';
+    showResult(data, currentItem);
+  } catch (e) { showResult(demoData('phone'), 'Scanned item'); }
+  finally { hide('loading'); }
+}
+
+async function classifyWaste() {
+  const item = document.getElementById('waste-input').value.trim();
+  if (!item) { alert('Please enter a waste item first.'); return; }
+  currentItem = item;
+  show('loading'); hide('result-card'); hide('request-form'); hide('success-msg');
+  try {
+    const res = await fetch(`${API}/classify`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ item })
+    });
+    showResult(await res.json(), item);
+  } catch (e) { showResult(demoData(item), item); }
+  finally { hide('loading'); }
+}
+
+function demoData(item) {
+  const i = item.toLowerCase();
+  if (i.includes('phone')||i.includes('laptop')||i.includes('battery')||i.includes('charger'))
+    return { category:'E-Waste', tip:'Remove batteries before disposing. Never mix with regular waste.', location:'SIPCOT E-Waste Drop Centre', address:'SIPCOT Main Road, Hosur', timings:'Mon-Fri 9AM-5PM', contact:'04344-345678' };
+  if (i.includes('vegetable')||i.includes('food')||i.includes('peel')||i.includes('fruit'))
+    return { category:'Wet', tip:'Can be composted at home. Keep separate from dry waste.', location:'Hosur Municipality Compost Yard', address:'Near Bus Stand, Hosur', timings:'Mon-Sat 7AM-6PM', contact:'04344-123456' };
+  if (i.includes('medicine')||i.includes('paint')||i.includes('chemical')||i.includes('oil'))
+    return { category:'Hazardous', tip:'Never pour down drains. Store safely until collection.', location:'Hosur Hazardous Waste Facility', address:'Industrial Area, Hosur', timings:'Mon-Fri 9AM-4PM', contact:'04344-456789' };
+  return { category:'Dry', tip:'Clean before disposing. Remove food residue from packaging.', location:'Hosur Dry Waste Collection Centre', address:'SIPCOT Phase 1, Hosur', timings:'Mon-Sat 8AM-5PM', contact:'04344-234567' };
+}
+
+function showResult(data, item) {
+  currentCategory = data.category;
+  const badge = document.getElementById('result-badge');
+  badge.textContent = data.category + ' Waste';
+  badge.className = 'result-badge ' + data.category.toLowerCase().replace('-','');
+  document.getElementById('result-item').textContent = '"' + item + '"';
+  document.getElementById('result-tip').textContent = data.tip;
+  document.getElementById('result-location').textContent = data.location;
+  document.getElementById('result-address').textContent = data.address;
+  document.getElementById('result-timings').textContent = 'Timings: ' + data.timings;
+  document.getElementById('result-contact').textContent = 'Contact: ' + data.contact;
+  show('result-card');
+
+  // Show CO2 box
+  document.getElementById('co2-box').style.display = 'block';
+  currentQty = 1;
+  document.getElementById('co2-qty').textContent = '1';
+  loadCO2(data.category);
+}
+
+function showRequestForm() {
+  document.getElementById('req-name').value = user ? user.name : '';
+  document.getElementById('req-waste').value = currentItem + ' (' + currentCategory + ')';
+  show('request-form');
+}
+
+async function submitRequest() {
+  const name = document.getElementById('req-name').value.trim();
+  const address = document.getElementById('req-address').value.trim();
+  if (!name||!address) { alert('Please fill in your name and address.'); return; }
+  try {
+    await fetch(`${API}/request`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ citizenName:name, address, wasteDescription:currentItem, category:currentCategory })
+    });
+  } catch (e) {}
+  hide('request-form'); hide('result-card'); show('success-msg');
+}
+
+function resetAll() {
+  document.getElementById('waste-input').value = '';
+  hide('success-msg'); hide('result-card'); hide('request-form'); resetPhoto();
+}
+
+function show(id) { document.getElementById(id).classList.remove('hidden'); }
+function hide(id) { document.getElementById(id).classList.add('hidden'); }
+
+let currentQty = 1;
+let currentCO2PerKg = 0;
+
+async function loadCO2(category) {
+  try {
+    const res = await fetch(`${API}/co2-savings?category=${category}&quantity=${currentQty}`);
+    const data = await res.json();
+    updateCO2Display(data);
+  } catch(e) {
+    updateCO2Display(localCO2(category, currentQty));
+  }
+}
+
+function localCO2(category, qty) {
+  const rates = { 'E-Waste': 20.0, 'Wet': 0.5, 'Hazardous': 5.0, 'Dry': 2.5 };
+  const equivs = {
+    'E-Waste':   `Equivalent to planting ${Math.round(qty * 0.8)} trees!`,
+    'Wet':       `Equivalent to not driving ${Math.round(qty * 2.5)} km by car!`,
+    'Hazardous': `Prevents contamination of ${qty * 500} litres of groundwater!`,
+    'Dry':       `Equivalent to saving ${Math.round(qty * 1.5)} litres of water!`
+  };
+  const impacts = {
+    'E-Waste':   'E-waste recycling prevents toxic metals from entering soil and saves massive energy used in mining new materials.',
+    'Wet':       'Composting prevents methane emission from landfills. Methane is 25x more potent than CO2 as a greenhouse gas.',
+    'Hazardous': 'Proper disposal prevents soil and groundwater contamination affecting thousands of Hosur residents.',
+    'Dry':       'Recycling dry waste saves energy, water, and raw materials. Paper recycling saves 17 trees per tonne.'
+  };
+  const tips = {
+    'E-Waste':   'One recycled mobile phone saves enough energy to charge a laptop for 44 hours.',
+    'Wet':       '1 kg of composted wet waste produces 300g of rich fertilizer for your garden.',
+    'Hazardous': 'One disposed paint can prevents 10 sq metres of soil from becoming toxic for 50 years.',
+    'Dry':       'Recycling 1 plastic bottle saves enough energy to power a 60W bulb for 6 hours.'
+  };
+  const rate = rates[category] || 2.5;
+  currentCO2PerKg = rate;
+  return {
+    totalCO2Saved: Math.round(rate * qty * 100) / 100,
+    equivalent: equivs[category] || '',
+    impact: impacts[category] || '',
+    tip: tips[category] || ''
+  };
+}
+const co2Amount = document.getElementById('co2-amount').textContent;
+const co2Equiv  = document.getElementById('co2-equiv').textContent;
+
+doc.setFillColor(col[0], col[1], col[2]);
+doc.roundedRect(10, 128, 128, 36, 3, 3, 'F');
+doc.setTextColor(255, 255, 255);
+doc.setFontSize(10);
+doc.setFont('helvetica', 'bold');
+doc.text('CO2 Savings by Correct Segregation', 16, 137);
+doc.setFontSize(24);
+doc.text(co2Amount + ' kg CO2 saved', 16, 150);
+doc.setFontSize(9);
+doc.setFont('helvetica', 'normal');
+doc.text(co2Equiv, 16, 158);
+
+function updateCO2Display(data) {
+  const co2 = data.totalCO2Saved || 0;
+  currentCO2PerKg = data.co2PerKg || currentCO2PerKg;
+  document.getElementById('co2-amount').textContent = co2.toFixed(1);
+  const pct = Math.min(100, (co2 / 50) * 100);
+  document.getElementById('co2-bar').style.width = pct + '%';
+  document.getElementById('co2-equiv').textContent = data.equivalent || '';
+  document.getElementById('co2-impact').textContent = data.impact || '';
+  document.getElementById('co2-tip').textContent = '💡 ' + (data.tip || '');
+}
+
+function changeQty(delta) {
+  currentQty = Math.max(1, Math.min(100, currentQty + delta));
+  document.getElementById('co2-qty').textContent = currentQty;
+  const co2 = Math.round(currentCO2PerKg * currentQty * 100) / 100;
+  document.getElementById('co2-amount').textContent = co2.toFixed(1);
+  const pct = Math.min(100, (co2 / 50) * 100);
+  document.getElementById('co2-bar').style.width = pct + '%';
+}
+</script>
+
+
+<script src="/lang.js"></script>
+<script src="/chatbot.js"></script>
+<style>.co2-box { background:#f0fdf4; border:1.5px solid #86efac; border-radius:14px; overflow:hidden; margin-top:16px; }
+.co2-header { background:#16a34a; padding:14px 20px; }
+.co2-title { font-family:'Syne',sans-serif; font-size:16px; font-weight:800; color:#fff; }
+.co2-sub { font-size:12px; color:#bbf7d0; margin-top:2px; }
+.co2-body { padding:18px 20px; }
+.co2-qty-row { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
+.co2-label { font-size:13px; color:#166534; font-weight:500; }
+.co2-qty-ctrl { display:flex; align-items:center; gap:12px; }
+.co2-qty-ctrl button { width:28px; height:28px; border-radius:50%; background:#16a34a; color:#fff; border:none; cursor:pointer; font-size:16px; font-weight:700; display:flex; align-items:center; justify-content:center; transition:all .2s; }
+.co2-qty-ctrl button:hover { background:#15803d; }
+.co2-qty-ctrl span { font-family:'Syne',sans-serif; font-size:20px; font-weight:800; color:#166534; min-width:24px; text-align:center; }
+.co2-result-row { display:flex; align-items:center; gap:16px; margin-bottom:14px; }
+.co2-metric { text-align:center; }
+.co2-big { font-family:'Syne',sans-serif; font-size:48px; font-weight:800; color:#16a34a; line-height:1; }
+.co2-unit { font-size:12px; color:#4a6b50; margin-top:4px; font-weight:500; }
+.co2-bar-wrap { flex:1; background:#dcfce7; border-radius:8px; height:12px; overflow:hidden; }
+.co2-bar { height:100%; background:#16a34a; border-radius:8px; transition:width .5s ease; width:0%; }
+.co2-equiv { font-family:'Syne',sans-serif; font-size:14px; font-weight:700; color:#166534; background:#dcfce7; border-radius:8px; padding:10px 14px; margin-bottom:10px; text-align:center; }
+.co2-impact { font-size:13px; color:#166534; line-height:1.6; margin-bottom:8px; }
+.co2-tip { font-size:12px; color:#4a6b50; background:#fff; border-radius:8px; padding:8px 12px; border-left:3px solid #16a34a; }</style>
+</body>
+</html>

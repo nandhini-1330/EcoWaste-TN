@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>EcoWaste TN — Home</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+<nav class="navbar">
+  
+  <a href="/index.html" class="logo">EcoWaste <span>TN</span></a>
+  <div class="nav-links">
+    <a href="/index.html" class="active" data-lang="home">Home</a>
+    <a href="/citizen.html" data-lang="checkWaste">Check Waste</a>
+    <a href="/map.html" style="color:var(--green)">Waste Map</a>
+    <button class="lang-btn lang-toggle-btn" onclick="toggleLanguage()">🌐 தமிழ்</button>
+    <span class="nav-user" id="nav-user"></span>
+    <button class="btn-danger" onclick="logout()"
+      style="padding:6px 14px;font-size:13px;border-radius:6px"
+      data-lang="logout">Logout</button>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-badge" data-lang="heroBadge">Smart &amp; Sustainable Tamil Nadu · TNWISE 2026</div>
+  <h1 class="hero-title">
+    <span data-lang="heroTitle1">Segregate Smart.</span><br/>
+    <span data-lang="heroTitle2">Dispose Right.</span>
+  </h1>
+  <p class="hero-sub" data-lang="heroSub">Tamil Nadu's first AI-powered waste classification and collection platform. Know exactly where to dispose your waste in Hosur — instantly.</p>
+  <div class="hero-btns">
+    <a href="/citizen.html" class="btn-primary" data-lang="btnCheckWaste">Check Your Waste</a>
+    <a href="/register.html" class="btn-outline" data-lang="btnCreateAccount">Create Account</a>
+  </div>
+</section>
+
+<section class="stats-bar">
+  <div class="stat">
+    <div class="stat-num">60%</div>
+    <div class="stat-label" data-lang="stat1Label">Waste mishandled in TN cities</div>
+  </div>
+  <div class="stat-div"></div>
+  <div class="stat">
+    <div class="stat-num">4</div>
+    <div class="stat-label" data-lang="stat2Label">Waste categories classified by AI</div>
+  </div>
+  <div class="stat-div"></div>
+  <div class="stat">
+    <div class="stat-num">5sec</div>
+    <div class="stat-label" data-lang="stat3Label">Time to get disposal answer</div>
+  </div>
+  <div class="stat-div"></div>
+  <div class="stat">
+    <div class="stat-num">Hosur</div>
+    <div class="stat-label" data-lang="stat4Label">Specific disposal locations</div>
+  </div>
+</section>
+
+<section class="features">
+  <h2 class="section-title" data-lang="howItWorks">How it works</h2>
+  <div class="feature-grid">
+    <div class="feature-card">
+      <div class="feature-num">01</div>
+      <h3 data-lang="step1Title">Describe your waste</h3>
+      <p data-lang="step1Desc">Type any waste item in plain English. Example: dead battery, vegetable peels, broken laptop.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-num">02</div>
+      <h3 data-lang="step2Title">AI classifies instantly</h3>
+      <p data-lang="step2Desc">Our AI engine classifies it as Wet, Dry, E-Waste, or Hazardous in seconds.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-num">03</div>
+      <h3 data-lang="step3Title">Get Hosur location</h3>
+      <p data-lang="step3Desc">See the exact disposal centre near you in Hosur with address, timings, and contact.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-num">04</div>
+      <h3 data-lang="step4Title">Request collection</h3>
+      <p data-lang="step4Desc">Submit a home collection request. Municipality admin tracks and confirms pickup.</p>
+    </div>
+  </div>
+</section>
+
+<section class="categories">
+  <h2 class="section-title" data-lang="categoriesTitle">Waste categories we handle</h2>
+  <div class="cat-grid">
+    <div class="cat-card wet">
+      <div class="cat-icon">W</div>
+      <h3 data-lang="wetWaste">Wet Waste</h3>
+      <p data-lang="wetDesc">Food scraps, vegetable peels, garden waste</p>
+    </div>
+    <div class="cat-card dry">
+      <div class="cat-icon">D</div>
+      <h3 data-lang="dryWaste">Dry Waste</h3>
+      <p data-lang="dryDesc">Paper, plastic, cardboard, glass, metal</p>
+    </div>
+    <div class="cat-card ewaste">
+      <div class="cat-icon">E</div>
+      <h3 data-lang="eWaste">E-Waste</h3>
+      <p data-lang="eWasteDesc">Old phones, laptops, batteries, chargers</p>
+    </div>
+    <div class="cat-card hazardous">
+      <div class="cat-icon">H</div>
+      <h3 data-lang="hazardousWaste">Hazardous</h3>
+      <p data-lang="hazardousDesc">Paints, chemicals, medicines, motor oil</p>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="footer-logo">EcoWaste TN</div>
+  <p data-lang="footerLine1">Built for TNWISE 2026 · Er. Perumal Manimekalai College of Engineering, Hosur</p>
+  <p data-lang="footerLine2">Theme: Smart &amp; Sustainable Tamil Nadu · Circular Economy &amp; Industrial Resource Recovery</p>
+</footer>
+
+<script src="/lang.js"></script>
+<script src="/chatbot.js"></script>
+<script>
+const user = JSON.parse(localStorage.getItem('user'));
+if (!user) window.location.href = '/login.html';
+document.getElementById('nav-user').textContent = 'Hi, ' + (user ? user.name : '');
+
+function logout() {
+  localStorage.removeItem('user');
+  window.location.href = '/login.html';
+}
+</script>
+</body>
+</html>

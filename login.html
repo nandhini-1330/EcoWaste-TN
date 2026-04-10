@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>EcoWaste TN — Login</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+<div style="position:fixed;top:16px;right:16px;z-index:999">
+  <button class="lang-btn lang-toggle-btn" onclick="toggleLanguage()">🌐 தமிழ்</button>
+</div>
+
+<div class="auth-page">
+  <div class="auth-card">
+    <div class="auth-logo">EcoWaste <span>TN</span></div>
+    <div class="auth-subtitle" data-lang="heroBadge">Smart &amp; Sustainable Tamil Nadu</div>
+    <div class="auth-title" data-lang="welcomeBack">Welcome Back</div>
+    <p style="text-align:center;color:#4a6b50;font-size:14px;margin-bottom:24px"
+      data-lang="loginSub">Login to your account</p>
+
+    <div class="alert error" id="error-msg"></div>
+
+    <div class="form-group">
+      <label data-lang="labelEmail">Email Address</label>
+      <input type="email" id="email" class="form-input"
+        data-lang="emailPlaceholder" data-lang-attr="placeholder"
+        placeholder="Enter your email"/>
+    </div>
+    <div class="form-group">
+      <label data-lang="labelPassword">Password</label>
+      <input type="password" id="password" class="form-input"
+        data-lang="passwordPlaceholder" data-lang-attr="placeholder"
+        placeholder="Enter your password"/>
+    </div>
+
+    <button class="btn-primary full-width" onclick="login()"
+      data-lang="btnLogin">Login</button>
+
+    <div class="auth-switch" style="margin-top:16px;font-size:13px;color:#4a6b50">
+      Demo Admin: <strong>admin@ecowaste.com</strong> / <strong>admin123</strong>
+    </div>
+    <div class="auth-switch" style="margin-top:12px;font-size:14px">
+      <span data-lang="noAccount">No account?</span>
+      <a href="/register.html" data-lang="registerHere">Register here</a>
+    </div>
+  </div>
+</div>
+
+<script src="/lang.js"></script>
+<script src="/chatbot.js"></script>
+<script>
+const API = 'http://localhost:8080/api/auth';
+
+async function login() {
+  const email = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value.trim();
+  document.getElementById('error-msg').style.display = 'none';
+  if (!email || !password) { showError('Please enter email and password.'); return; }
+  try {
+    const res = await fetch(`${API}/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+    const data = await res.json();
+    if (data.status === 'success') {
+      localStorage.setItem('user', JSON.stringify({
+        name: data.name, email: data.email, role: data.role
+      }));
+      window.location.href = data.role === 'admin' ? '/admin.html' : '/index.html';
+    } else {
+      showError(data.message || 'Login failed.');
+    }
+  } catch (e) {
+    showError('Cannot connect to server. Make sure backend is running.');
+  }
+}
+
+function showError(msg) {
+  const el = document.getElementById('error-msg');
+  el.textContent = msg; el.style.display = 'block';
+}
+
+document.addEventListener('keypress', e => { if (e.key === 'Enter') login(); });
+</script>
+<script src="/chatbot.js"></script>
+<script src="lang.js"></script>
+</body>
+</html>
